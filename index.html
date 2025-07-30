@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dino Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game">
+    <div id="dino"></div>
+    <div class="cactus" id="cactus1"></div>
+    <div class="cactus" id="cactus2"></div>
+<img src="cloud.png" id="cloud1" class="cloud" />
+<img src="cloud.png" id="cloud2" class="cloud" />
+<img src="cloud.png" id="cloud3" class="cloud" />
+<img src="cloud.png" id="cloud4" class="cloud" />
+<img src="cloud.png" id="cloud5" class="cloud" />
+
+</div>
+<div id="scoreboard">Score: <span id="score">0</span></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dino = document.getElementById("dino");
+  const cactus1 = document.getElementById("cactus1");
+  const cactus2 = document.getElementById("cactus2");
+  const cloud1 = document.getElementById("cloud1");
+  const cloud2 = document.getElementById("cloud2");
+  const cloud3 = document.getElementById("cloud3");
+  const cloud4 = document.getElementById("cloud4");
+  const cloud5 = document.getElementById("cloud5"); 
+
+  // Initial positions
+  cactus1.style.left = "800px";
+  cactus2.style.left = "1200px";
+
+const clouds = [
+  { element: cloud1, left: 900, speed: 0.5 },
+  { element: cloud2, left: 1100, speed: 0.3 },
+  { element: cloud3, left: 1300, speed: 0.4 },
+  { element: cloud4, left: 1500, speed: 0.6 },
+  { element: cloud5, left: 1700, speed: 0.45 }
+];
+
+// Assign random top positions to clouds
+clouds.forEach(cloud => {
+  cloud.element.style.top = 20 + Math.floor(Math.random() * 50) + "px";
+  cloud.element.style.left = cloud.left + "px";
+});
+
+function moveClouds() {
+  clouds.forEach(cloud => {
+    cloud.left -= cloud.speed;
+    if (cloud.left < -100) {
+      cloud.left = 900 + Math.random() * 400; // Respawn at right
+      cloud.element.style.top = 20 + Math.floor(Math.random() * 50) + "px"; // New height
+    }
+    cloud.element.style.left = cloud.left + "px";
+  });
+
+  requestAnimationFrame(moveClouds);
+}
+
+moveClouds();
+
+
+
+  let isJumping = false;
+  let jumpHeight = 150;
+  let jumpSpeed = 5;
+
+  function jump() {
+    if (isJumping) return;
+    isJumping = true;
+    let position = 0;
+
+    const upInterval = setInterval(() => {
+      if (position >= jumpHeight) {
+        clearInterval(upInterval);
+        const downInterval = setInterval(() => {
+          if (position <= 0) {
+            clearInterval(downInterval);
+            isJumping = false;
+          } else {
+            position -= jumpSpeed;
+            dino.style.bottom = position + "px";
+          }
+        }, 20);
+      } else {
+        position += jumpSpeed;
+        dino.style.bottom = position + "px";
+      }
+    }, 20);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.code === "Space") {
+      jump();
+    }
+  });
+
+  function moveCactus(cactus) {
+    let left = parseInt(cactus.style.left);
+    left -= 5;
+    if (left < -30) {
+      left = 800 + Math.floor(Math.random() * 300);
+    }
+    cactus.style.left = left + "px";
+    if (left < 100) {
+  }
+    cactus.style.animation = "none"; // Stop animation when off-screen
+    setTimeout(() => {
+      cactus.style.animation = ""; // Restart animation
+    }, 100);
+  }
+  function checkCollision(cactus) {
+    const dinoBottom = parseInt(window.getComputedStyle(dino).bottom);
+    const dinoLeft = dino.offsetLeft;
+    const dinoRight = dinoLeft + dino.offsetWidth;
+
+    const cactusLeft = cactus.offsetLeft;
+    const cactusRight = cactusLeft + cactus.offsetWidth;
+
+    return (
+      cactusLeft < dinoRight &&
+      cactusRight > dinoLeft &&
+      dinoBottom < 60
+    );
+  }
+
+  function gameLoop() {
+    moveCactus(cactus1);
+    moveCactus(cactus2);
+
+    if (checkCollision(cactus1) || checkCollision(cactus2)) {
+      alert("Game Over!");
+      location.reload();
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+  let score = 0;
+const scoreDisplay = document.getElementById("score");
+
+// Increase score every 100ms
+setInterval(() => {
+  score++;
+  scoreDisplay.textContent = score;
+}, 100);
+
+  gameLoop();
+});
+</script>
+ 
+</body>
+</html>
